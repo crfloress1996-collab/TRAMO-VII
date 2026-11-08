@@ -415,7 +415,7 @@ function rxSummaryCard(){
 function niceStep(span){const raw=span/8;const p=Math.pow(10,Math.floor(Math.log10(raw)));return [1,2,2.5,5,10].map(m=>m*p).find(v=>v>=raw)||p*10}
 function linearSvg(o){
   // o: {rows:[{capa,tramos,rango}], A, B, sectors, hitos, pct, day}
-  const W=1100,L=o.day?150:190,R=o.pct?78:18,top=o.sectors?50:26,rh=o.day?40:38,n=o.rows.length,H=top+n*rh+34;
+  const W=1100,L=o.day?150:190,R=o.pct?78:o.day?96:18,top=o.sectors?50:26,rh=o.day?40:38,n=o.rows.length,H=top+n*rh+34;
   const x=m=>L+(m-o.A)/(o.B-o.A)*(W-L-R);
   const s=sv('svg',{viewBox:`0 0 ${W} ${H}`,class:'lin',role:'img','aria-label':o.label||'Diagrama lineal'});
   const df=sv('defs');const pt=sv('pattern',{id:'hatch'+(o.day?'d':'g'),width:6,height:6,patternUnits:'userSpaceOnUse',patternTransform:'rotate(45)'});
@@ -429,6 +429,7 @@ function linearSvg(o){
     s.append(sv('text',{x:x(k),y:top+n*rh+20,'text-anchor':'middle',class:'km'},st>=5000?String(k/1000):km(k)))}
   s.append(sv('text',{x:L-10,y:top+n*rh+20,'text-anchor':'end',class:'km'},'km'));
   if(o.pct)s.append(sv('text',{x:W-4,y:top-14,'text-anchor':'end',class:'pcth'},'AVANCE'));
+  if(o.day)s.append(sv('text',{x:W-4,y:top-12,'text-anchor':'end',class:'pcth'},'SEMANA'));
   const col={hecho:'var(--seg-hecho)',parcial:'url(#hatch'+(o.day?'d':'g')+')',semana:'var(--seg-semana)',proximo:'var(--seg-prox)',pendiente:'var(--seg-pend)',roca:'var(--seg-roca)'};
   const dk=t=>{const m=String(t).match(/(\d\d)\/(\d\d)/);return m?(+m[2])*100+(+m[1]):0};const days=[...new Set(o.rows.flatMap(r=>r.tramos.map(t=>t[2])))].sort((a,b)=>dk(a)-dk(b));
   o.rows.forEach((r,i)=>{const y=top+i*rh,bh=o.day?20:16,by=y+(rh-bh)/2;
@@ -444,6 +445,7 @@ function linearSvg(o){
       g.append(sv('title',null,r.capa+(o.day?' · '+k:'')+': km '+km(a)+' → '+km(b)+' ('+fmt(b-a)+' m)'));s.append(g);
       if(o.day&&x(b)-x(a)>40)s.append(sv('text',{x:(x(a)+x(b))/2,y:by+bh/2+1,'text-anchor':'middle','dominant-baseline':'middle',class:'seglbl'},(x(b)-x(a)>104?k.split(' ')[0]+' · ':'')+fmt(b-a)+' m'));
       if(['hecho','parcial','semana'].includes(k)){done+=(b-a)*(k==='parcial'?.5:1);front=Math.max(front||0,b)}});
+    if(o.day){const tt=r.tramos.reduce((q,t)=>q+Math.abs(t[1]-t[0]),0);s.append(sv('text',{x:W-4,y:y+rh/2,'text-anchor':'end','dominant-baseline':'middle',class:'pctv'},fmt(tt)+' m'))}
     if(o.pct){const p=Math.round(done/(ra[1]-ra[0])*100);s.append(sv('text',{x:W-4,y:y+rh/2,'text-anchor':'end','dominant-baseline':'middle',class:'pctv'},p+' %'))}
     if(!o.day&&front&&front<ra[1]-200){const X=x(front);s.append(sv('path',{d:`M${X} ${by-2} l5 -7 h-10 z`,fill:'var(--ink)'}));
       s.append(sv('text',{x:X+7,y:by-3,class:'front'},km(front)))}});
