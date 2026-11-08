@@ -240,6 +240,7 @@ footer.pie i{width:8px;height:8px;background:var(--amber);display:inline-block}
 .pbar u{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink);left:calc(100% / 1.25)}
 .pcharts{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:18px;margin-top:16px}
 .pch h3{font-size:12.5px;font-weight:600;margin:0 0 4px;color:var(--ink)}
+.ft td.nw{white-space:nowrap}
 .pnote{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.45}
 .pkpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:14px}
 .pkpi>div{background:var(--band);border-radius:10px;padding:12px 14px}
@@ -554,10 +555,10 @@ function corteCard(f){
       if(w>44){s.append(sv('text',{x:a+w/2,y:y+bh/2+1,'text-anchor':'middle','dominant-baseline':'middle',class:key==='T'?'zin2':'zin'},t))}else s.append(sv('text',{x:a+w/2,y:y-5,'text-anchor':'middle',class:'zl'},t));
       if(sub&&w>44)s.append(sv('text',{x:a+w/2,y:y+bh+12,'text-anchor':'middle',class:'zs'},sub))})});
   const sc=el('div','scroll');sc.append(s);const bd=el('div','card-b');bd.append(sc);c.append(bd);
-  const s2=el('div','scroll');const t=el('table','ft');const th=el('thead');const tr=el('tr');[['Orden','r'],['Zona'],['Trabajo'],['Progresivas'],['Corte','r'],['R.F.','r'],['Mejoram.','r'],['Avance'],['Termina (Excel)','r']].forEach(([h,c2])=>tr.append(el('th',c2||null,h)));th.append(tr);t.append(th);
+  const s2=el('div','scroll');const t=el('table','ft');const th=el('thead');const tr=el('tr');[['Orden','r'],['Zona'],['Trabajo'],['Progresivas'],['Longitud','r'],['Corte','r'],['R.F.','r'],['Mejoram.','r'],['Avance'],['Termina (Excel)','r']].forEach(([h,c2])=>tr.append(el('th',c2||null,h)));th.append(tr);t.append(th);
   const tb=el('tbody');[...zs].sort((a,b)=>(a.orden||99)-(b.orden||99)).forEach(z=>{const r=el('tr');r.style.cursor='default';const ab=el('div','ab');const tr2=el('div','tr');const i=el('i');i.style.width=(z.pct*100)+'%';tr2.append(i);ab.append(tr2,el('b',null,pct(z.pct)));const ca=el('td');ca.append(ab);
-    const zn=el('td');zn.append(el('b',null,z.zona));
-    r.append(el('td','r mono',z.orden!=null?String(z.orden):'—'),zn,el('td',String(z.zona).startsWith('MSR')?'msr':null,z.trabajo),el('td','mono',km(z.desde)+' → '+km(z.hasta)),el('td','r mono',fmt(z.corte)+' m³'),el('td','r mono'+(z.rf>0?' late':''),z.rf>0?fmt(z.rf)+' m³':'—'),el('td','r mono',z.mej>0?fmt(z.mej)+' m³':'—'),ca,el('td','r mono',fd(z.fin)));tb.append(r)});
+    const zn=el('td','nw');zn.append(el('b',null,z.zona));
+    r.append(el('td','r mono',z.orden!=null?String(z.orden):'—'),zn,el('td',String(z.zona).startsWith('MSR')?'msr':null,z.trabajo),el('td','mono',km(z.desde)+' → '+km(z.hasta)),el('td','r mono nw',(z.hasta>z.desde?fmt(z.hasta-z.desde):'—')+' m'),el('td','r mono nw',fmt(z.corte)+' m³'),el('td','r mono nw'+(z.rf>0?' late':''),z.rf>0?fmt(z.rf)+' m³':'—'),el('td','r mono nw',z.mej>0?fmt(z.mej)+' m³':'—'),ca,el('td','r mono',fd(z.fin)));tb.append(r)});
   t.append(tb);s2.append(t);c.append(s2);return c;
 }
 function hitosCard(){
