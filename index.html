@@ -241,6 +241,8 @@ footer.pie i{width:8px;height:8px;background:var(--amber);display:inline-block}
 .pcharts{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:18px;margin-top:16px}
 .pch h3{font-size:12.5px;font-weight:600;margin:0 0 4px;color:var(--ink)}
 .ft td.nw{white-space:nowrap}
+.ft tfoot td{background:var(--band);font-weight:700;border-top:2px solid var(--navy);padding-top:12px;padding-bottom:12px;box-shadow:inset 3px 0 0 transparent}
+.ft tfoot td:first-child{box-shadow:inset 3px 0 0 var(--amber,#C55A11);letter-spacing:.04em;font-size:12px}
 .pnote{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.45}
 .pkpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:14px}
 .pkpi>div{background:var(--band);border-radius:10px;padding:12px 14px}
@@ -559,7 +561,11 @@ function corteCard(f){
   const tb=el('tbody');[...zs].sort((a,b)=>(a.orden||99)-(b.orden||99)).forEach(z=>{const r=el('tr');r.style.cursor='default';const ab=el('div','ab');const tr2=el('div','tr');const i=el('i');i.style.width=(z.pct*100)+'%';tr2.append(i);ab.append(tr2,el('b',null,pct(z.pct)));const ca=el('td');ca.append(ab);
     const zn=el('td','nw');zn.append(el('b',null,z.zona));
     r.append(el('td','r mono',z.orden!=null?String(z.orden):'—'),zn,el('td',String(z.zona).startsWith('MSR')?'msr':null,z.trabajo),el('td','mono',km(z.desde)+' → '+km(z.hasta)),el('td','r mono nw',(z.hasta>z.desde?fmt(z.hasta-z.desde):'—')+' m'),el('td','r mono nw',fmt(z.corte)+' m³'),el('td','r mono nw'+(z.rf>0?' late':''),z.rf>0?fmt(z.rf)+' m³':'—'),el('td','r mono nw',z.mej>0?fmt(z.mej)+' m³':'—'),ca,el('td','r mono',fd(z.fin)));tb.append(r)});
-  t.append(tb);s2.append(t);c.append(s2);return c;
+  const sum=k=>zs.reduce((a,z)=>a+(+z[k]||0),0),Lt=zs.reduce((a,z)=>a+(z.hasta>z.desde?z.hasta-z.desde:0),0),Ct=sum('corte'),Ht=sum('hecho');
+  const tf=el('tfoot');const fr=el('tr');const lab=el('td',null,'TOTAL · '+zs.length+' zonas');lab.colSpan=4;
+  const ab=el('div','ab');const tr3=el('div','tr');const i3=el('i');i3.style.width=(Ct?Ht/Ct*100:0)+'%';tr3.append(i3);ab.append(tr3,el('b',null,pct(Ct?Ht/Ct:0)));const ca=el('td');ca.append(ab);
+  fr.append(lab,el('td','r mono nw',fmt(Lt)+' m'),el('td','r mono nw',fmt(Ct)+' m³'),el('td','r mono nw late',fmt(sum('rf'))+' m³'),el('td','r mono nw',fmt(sum('mej'))+' m³'),ca,el('td','r mono nw',fd(zs.map(z=>z.fin).filter(Boolean).sort().pop())));tf.append(fr);
+  t.append(tb,tf);s2.append(t);c.append(s2);return c;
 }
 function hitosCard(){
   const c=card('Próximos 21 días','Hitos del plan de cierre');const b=el('div','hitos');const t=today();
