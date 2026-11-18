@@ -669,6 +669,37 @@ const SEML={ok:'Bien',warn:'Atento',bad:'Atrasado'};
 function semPill(sem,txt){const p=el('span','sema '+(sem||'na'));p.append(el('i'),document.createTextNode(txt||SEML[sem]||'Sin meta'));return p}
 function fmtU(v,u){return fmt(v,(u==='cabezales'||u==='viajes')&&v<10&&v%1?1:0)+' '+u}
 function prodMain(f){return f.prod&&(f.prod.series.find(x=>x.principal&&x.meta)||f.prod.series[0])}
+function prodHChart(ss,P){
+  const dd=ss[0].dias,W=980,L=92,CW=560,RX=L+CW+70,RW=W-RX-14,bh=11,gap=3,n=ss.length,rh=n*(bh+gap)+16,T=30,H=T+dd.length*rh+30;
+  const meta=(ss.find(x=>x.meta)||{}).meta||0,mx=Math.max(1,meta*1.15,...ss.flatMap(x=>x.dias.map(d=>d.v||0)));
+  const step=Math.pow(10,Math.floor(Math.log10(mx)));const nice=[1,2,2.5,5,10].map(m=>m*step).find(v=>mx/v<=5)||step*10;const top=Math.ceil(mx/nice)*nice;
+  const x=v=>L+CW*v/top,NEU=['var(--navy-s)','var(--line)'];let ni=0;const col=ss.map(z=>z.color||(z.meta?null:NEU[(ni++)%2]));
+  const s=sv('svg',{viewBox:`0 0 ${W} ${H}`,class:'wk',role:'img','aria-label':'Producción por día (barras horizontales) y acumulado de la semana'});s.style.maxWidth='100%';
+  s.append(sv('text',{x:L,y:14,class:'sb'},'Por día (m³)'));
+  for(let v=0;v<=top+1e-9;v+=nice){s.append(sv('line',{x1:x(v),x2:x(v),y1:T-6,y2:H-26,stroke:'var(--line2)'}));s.append(sv('text',{x:x(v),y:H-10,'text-anchor':'middle'},fmt(v)))}
+  dd.forEach((d,i)=>{const y0=T+i*rh;if(i%2===0)s.append(sv('rect',{x:0,y:y0-4,width:L+CW+60,height:rh,fill:'var(--band)'}));
+    s.append(sv('text',{x:8,y:y0+rh/2-2,'dominant-baseline':'middle',class:'sb'},d.dia+' '+fdm(D(d.fecha))));
+    const anyEf=ss.some(z=>z.dias[i].ef);
+    if(d.futuro||!anyEf){s.append(sv('text',{x:L+6,y:y0+rh/2-2,'dominant-baseline':'middle',class:'fut'},d.futuro?'por reportar':'sin parte'));return}
+    ss.forEach((z,j)=>{const v=z.dias[i].v||0,yy=y0+j*(bh+gap);
+      const fill=z.meta?(v>=z.meta?'var(--ok)':v>=.8*z.meta?'var(--warn)':'var(--bad)'):col[j];
+      const r=sv('rect',{x:L,y:yy,width:Math.max(v?2:0,x(v)-L),height:bh,fill,rx:2});r.append(sv('title',null,`${z.nombre} · ${d.dia}: ${fmt(v)} ${z.und}`));s.append(r);
+      if(v)s.append(sv('text',{x:x(v)+5,y:yy+bh/2+1,'dominant-baseline':'middle',class:'vv'},fmt(v)))})});
+  if(meta){s.append(sv('line',{x1:x(meta),x2:x(meta),y1:T-10,y2:H-26,class:'meta'}));s.append(sv('text',{x:x(meta)+4,y:T-12,class:'mt'},'meta '+fmt(meta)+'/día'))}
+  // acumulado de la semana (derecha)
+  s.append(sv('line',{x1:RX-24,x2:RX-24,y1:4,y2:H-6,stroke:'var(--line)'}));
+  s.append(sv('text',{x:RX,y:14,class:'sb'},'Acumulado de la semana'));
+  const nh=(EST.prod&&EST.prod.nhab)||6,tots=ss.map(z=>z.dias.reduce((q,d)=>q+(d.futuro?0:(d.v||0)),0)),ms=meta?meta*nh:0,tmx=Math.max(1,ms,...tots);
+  ss.forEach((z,j)=>{const t=tots[j],yy=T+12+j*76,w=RW*t/tmx,p=z.meta&&ms?t/ms:null;
+    s.append(sv('text',{x:RX,y:yy,class:'sb'},z.nombre));
+    s.append(sv('rect',{x:RX,y:yy+8,width:RW,height:18,rx:3,fill:'var(--track)'}));
+    const fill=z.meta?(p>=1?'var(--ok)':p>=.8?'var(--warn)':'var(--bad)'):col[j];
+    s.append(sv('rect',{x:RX,y:yy+8,width:Math.max(t?2:0,w),height:18,rx:3,fill}));
+    const tv=sv('text',{x:RX+RW,y:yy+44,'text-anchor':'end',class:'vv tot'},fmt(t)+' '+z.und);s.append(tv);
+    if(z.meta&&ms){s.append(sv('line',{x1:RX+RW*ms/tmx,x2:RX+RW*ms/tmx,y1:yy+4,y2:yy+30,class:'meta'}));
+      s.append(sv('text',{x:RX,y:yy+58,class:'mt'},'meta a la fecha '+fmt(ms)+' ('+nh+(nh===1?' día':' días')+') · '+Math.round(p*100)+' %'))}});
+  return s;
+}
 function prodChart(ss,P){
   const dd=ss[0].dias,sec=ss[0].sec,W=640,H=sec?236:224,L=44,B=sec?50:38,T=24,R=sec?44:76,meta=(ss.find(x=>x.meta)||{}).meta||0,hasSub=ss.some(x=>x.dias.some(d=>d.sub));
   const mx=Math.max(1,meta*1.15,...ss.flatMap(x=>x.dias.map(d=>d.v)));
@@ -715,7 +746,7 @@ function prodCard(f){
     if(ss.length>1){const l2=el('div','legend');ss.forEach((x,j)=>{const s2=el('span');const i=el('i');i.style.background=x.meta?'var(--ok)':(x.color||['var(--navy-s)','var(--line)'][ss.filter(z=>!z.meta).indexOf(x)%2]);if(!x.meta&&!x.color)i.style.outline='1px solid var(--navy)';const tw=x.dias.reduce((q,d)=>q+(d.futuro?0:(d.v||0)),0);s2.append(i,document.createTextNode(x.nombre+' · semana '),el('b',null,fmt(tw)+' '+x.und));l2.append(s2)});hh.append(l2)}
     if(ss[0].stack){const l4=el('div','legend');[['var(--amber)','Turno día'],['var(--navy)','Turno noche']].forEach(([cc,tx])=>{const s4=el('span');const i4=el('i');i4.style.background=cc;s4.append(i4,document.createTextNode(tx));l4.append(s4)});const s5=el('span');s5.append(document.createTextNode('Total del día arriba (color = semáforo)'));l4.append(s5);hh.append(l4)}
     if(ss[0].sec){const l3=el('div','legend');const s3=el('span');const i3=el('i');i3.style.cssText='width:10px;height:10px;border-radius:50%;background:var(--navy)';s3.append(i3,document.createTextNode(ss[0].sec.nombre+' (eje derecho)'));l3.append(s3);hh.append(l3)}
-    const sc=el('div','scroll');sc.append(prodChart(ss,P));w.append(hh,sc);ch.append(w)});
+    const sc=el('div','scroll');sc.append(f.id==='planta'&&ss.length>1?prodHChart(ss,P):prodChart(ss,P));w.append(hh,sc);ch.append(w)});
   if(!P.nochart)b.append(ch);
   const miss=P.series.filter(x=>!x.meta&&!x.dias.some(d=>d.v));if(miss.length)b.append(el('div','pnote',miss.map(x=>x.nombre).join(', ')+': sin registros esta semana en el Excel.'));
   b.append(el('div','pnote','Ratio = lo hecho en la semana ÷ días efectivos (solo los días con parte del frente, reportes hasta el '+fd(E.corte)+'). Verde ≥ 100 % de la meta · ámbar 80–99 % · rojo < 80 %.'));
