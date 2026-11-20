@@ -22,7 +22,7 @@ FN = r"""function prodHChart(ss,P){
   s.append(sv('line',{x1:RX-24,x2:RX-24,y1:4,y2:H-6,stroke:'var(--line)'}));
   s.append(sv('text',{x:RX,y:14,class:'sb'},'Acumulado de la semana'));
   const nh=(EST.prod&&EST.prod.nhab)||6,tots=ss.map(z=>z.dias.reduce((q,d)=>q+(d.futuro?0:(d.v||0)),0)),ms=meta?meta*nh:0,tmx=Math.max(1,ms,...tots);
-  ss.forEach((z,j)=>{const t=tots[j],yy=T+12+j*76,w=RW*t/tmx,p=z.meta&&ms?t/ms:null;
+  ss.forEach((z,j)=>{const t=tots[j],yy=T+12+j*86,w=RW*t/tmx,p=z.meta&&ms?t/ms:null;
     s.append(sv('text',{x:RX,y:yy,class:'sb'},z.nombre));
     s.append(sv('rect',{x:RX,y:yy+8,width:RW,height:18,rx:3,fill:'var(--track)'}));
     const fill=z.meta?(p>=1?'var(--ok)':p>=.8?'var(--warn)':'var(--bad)'):col[j];
