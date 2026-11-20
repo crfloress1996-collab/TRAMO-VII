@@ -47,6 +47,17 @@ def patch(h):
     return h
 
 
+def aplicar(motor):
+    from pathlib import Path
+    f = Path(motor) / 'tablero.html'
+    a = f.read_text(encoding='utf8')
+    b = patch(a)
+    if b != a:
+        f.write_text(b, encoding='utf8')
+        return ['tablero.html']
+    return []
+
+
 if __name__ == '__main__':
     p = sys.argv[1]
     h = patch(open(p, encoding='utf8').read())

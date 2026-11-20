@@ -37,6 +37,9 @@ def _plv2(lbl, col):
 try:
     _pp = PROD['planta']
     _desp = _plv2('Despachado a campo', 'Q')
+    if not isinstance(_desp, (int, float)):      # respaldo: suma de la columna R (A CAMPO m³) de PRODUCCION PLANTA
+        _desp = sum(r[17] for r in WB['pl']['PRODUCCION PLANTA'].iter_rows(min_row=12, values_only=True)
+                    if len(r) > 17 and isinstance(r[1], dt.datetime) and isinstance(r[17], (int, float)))
     _mez = _plv2('Mezcla en acopio', 'Q')
     _bsp = _plv2('STOCK EN ACOPIO', 'A')
     _k = _pp.setdefault('kpis', [])
@@ -65,6 +68,20 @@ def patch_py(s):
     anchor = "EST['dia_obs'] = DIA_OBS\n"
     assert s.count(anchor) == 1
     return s.replace(anchor, anchor + PY_ADD, 1)
+
+
+def aplicar(motor):
+    """Lo llama actualizar.py antes de leer los Excel: parcha tablero.html y dash_data.py del motor (si ya están, no hace nada)."""
+    from pathlib import Path
+    motor, msg = Path(motor), []
+    for nom, fn in (('tablero.html', patch_html), ('dash_data.py', patch_py)):
+        f = motor / nom
+        a = f.read_text(encoding='utf8')
+        b = fn(a)
+        if b != a:
+            f.write_text(b, encoding='utf8')
+            msg.append(nom)
+    return msg
 
 
 if __name__ == '__main__':
