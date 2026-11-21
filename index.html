@@ -965,7 +965,7 @@ function render(){
   if(!EST){$('#view').textContent='';const c=el('div','card');c.append(el('div','empty','Todavía no hay datos cargados. El tablero se llena con los reportes diarios de cada frente.'));$('#view').append(c);renderRx();return}
   const f=EST.frentes.find(z=>z.id===VIEW);
   if(f){RF=f.id;renderFrente(f)}else if(VIEW==='dia'){RF='todos';renderDia()}else{VIEW='general';renderGeneral()}
-  $('#kpis').hidden=!!f||VIEW==='dia';
+  $('#kpis').style.display=(f||VIEW==='dia')?'none':'';
   renderRx();
 }
 function renderRx(){
