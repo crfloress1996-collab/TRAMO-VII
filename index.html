@@ -641,7 +641,9 @@ function linearSvg(o){
       s.append(sv('line',{x1:X1,x2:X2,y1:y,y2:y,stroke:'var(--ink)','stroke-width':1,opacity:.8}));
       [X1,X2].forEach(X=>s.append(sv('line',{x1:X,x2:X,y1:y-6,y2:y+6,stroke:'var(--ink)','stroke-width':1.3,opacity:.8})));
       if(X2-X1>78)s.append(sv('text',{x:(X1+X2)/2,y:y+1,'text-anchor':'middle','dominant-baseline':'middle',class:'cotf'},'falta '+fmt(gb-ga)+' m'));
-      else s.append(sv('text',{x:(X1+X2)/2,y:y-10,'text-anchor':'middle',class:'cotf'},fmt(gb-ga)+' m'))})});
+      else s.append(sv('text',{x:(X1+X2)/2,y:y-10,'text-anchor':'middle',class:'cotf'},fmt(gb-ga)+' m'));
+      if(X2-X1>150){s.append(sv('text',{x:X1+5,y:y-8,'text-anchor':'start',class:'cotk'},km(ga)+' ▸'));s.append(sv('text',{x:X2-5,y:y-8,'text-anchor':'end',class:'cotk'},'◂ '+km(gb)))}
+      else if(X2-X1>78)s.append(sv('text',{x:(X1+X2)/2,y:y-8,'text-anchor':'middle',class:'cotk'},km(ga)+' – '+km(gb)))})});
   return {svg:s,days};
 }
 function linearCard(){
@@ -660,7 +662,7 @@ function weekMapCard(f){
   const {svg,days}=linearSvg({rows:m.filas,A:m.desde,B:m.hasta,day:true,hitos:mHitos(m),cota:m.cota,gaps:m.huecos,label:'Tramos ejecutados '+(SEM?'en la '+EST.prod.semana:'esta semana')});if(f.id==='base'){c.querySelector('h2')&&(c.querySelector('h2').textContent='Dónde está cada trabajo esta semana');}
   const lg=el('div','legend');lg.style.marginTop='10px';days.forEach((d,i)=>{const s=el('span');const ii=el('i');ii.style.background=`var(--d${i%6+1})`;s.append(ii,document.createTextNode(d));lg.append(s)});if(m.filas.some(r=>r.tramos.some(t=>t[2]==='antes'))){const s=el('span');const ii=el('i');ii.style.background='var(--seg-hecho)';ii.style.opacity='.6';s.append(ii,document.createTextNode('Hecho antes de esta semana'));lg.append(s)}
   if(m.meta){const s=el('span');const ii=el('i');ii.style.cssText='background:none;border-left:2px dashed var(--amber);border-radius:0;width:2px';s.append(ii,document.createTextNode((m.meta_lbl||'Meta')+' · '+km(m.meta)));lg.append(s)}
-  if(m.huecos){const t=m.filas.map(r=>{const g=mGaps(r.tramos);return r.capa+': '+(g.length?fmt(g.reduce((q,[a,b])=>q+b-a,0))+' m en '+g.length+(g.length>1?' huecos':' hueco'):'cerrado')});const pn=el('div','pnote');pn.append(el('b',null,'Para cerrar lo que está entre lo hecho · '),document.createTextNode(t.join('  ·  ')));c._pn=pn}
+  if(m.huecos){const t=m.filas.map(r=>{const g=mGaps(r.tramos);return r.capa+': '+(g.length?fmt(g.reduce((q,[a,b])=>q+b-a,0))+' m ('+g.map(([a,b])=>km(a)+' – '+km(b)).join(' · ')+')':'cerrado')});const pn=el('div','pnote');pn.append(el('b',null,'Para cerrar lo que está entre lo hecho · '),document.createTextNode(t.join('  ·  ')));c._pn=pn}
   const zb=el('button','zbtn','⤢ Vista panorámica');zb.title='Ver el mapa en pantalla completa, más de cerca';zb.onclick=()=>zoomWeekMap(f);c.querySelector('.card-h').append(zb);
   const sc=el('div','scroll');sc.append(svg);const b=el('div','card-b');b.append(sc,lg);if(c._pn)b.append(c._pn);c.append(b);return c;
 }
