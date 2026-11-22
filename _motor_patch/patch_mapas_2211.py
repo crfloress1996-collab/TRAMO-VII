@@ -105,12 +105,13 @@ def patch_py(s):
 
 
 def patch_html(h):
-    for o, n in JS:
+    ya = 'function zoomWeekMap' in h     # ya aplicado: otros parches (cotas) cambian luego estas líneas
+    for o, n in ([] if ya else JS):
         if n in h:
             continue
         assert h.count(o) == 1, ('linearSvg', o[:50])
         h = h.replace(o, n, 1)
-    if NEW_WMC_SVG not in h:
+    if NEW_WMC_SVG not in h and not ya:
         assert h.count(OLD_WMC_SVG) == 1, 'weekMap svg'
         h = h.replace(OLD_WMC_SVG, NEW_WMC_SVG, 1)
     if 'zoomWeekMap(f);c.querySelector' not in h:
