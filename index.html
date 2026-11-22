@@ -987,7 +987,6 @@ function renderFrente(f){
   c.append(ks);
   const fx=el('div','facts');
   if(f.donde){const a=el('div','fact');a.append(el('b',null,'Dónde está'),el('p',null,f.donde));fx.append(a)}
-  if(f.nota){const a=el('div','fact');a.append(el('b',null,'Lectura del frente'),el('p',null,f.nota));fx.append(a)}
   if(fx.children.length)c.append(fx);
   if(f.semana&&f.semana.dias&&f.semana.dias.length){const w=el('div','card-b');w.style.borderTop='1px solid var(--line2)';
     const hh=el('div');hh.style.cssText='display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px';
