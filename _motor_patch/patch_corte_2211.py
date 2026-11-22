@@ -44,7 +44,7 @@ NEW = r"""function corteSvg(f,W,o){
 function zoomCorte(f){
   const ov=el('div','zov');ov.setAttribute('role','dialog');ov.setAttribute('aria-label','Zonas de corte · vista panorámica');
   const bar=el('div','zbar');bar.append(el('b',null,'Zonas de corte · Sector XV · vista panorámica'));
-  let z=2;const box=el('div','zbox');box.style.cssText='display:flex;align-items:center';
+  let z=2;const box=el('div','zbox');box.style.cssText='display:flex;align-items:center;padding-left:0';
   const draw=keep=>{const sl=box.scrollWidth?box.scrollLeft/box.scrollWidth:0;box.textContent='';const W=Math.round(1100*z);
     const k=Math.max(1,Math.min(1.5,(box.clientHeight-30)/292));
     const wr=el('div','cpw');const lc=el('div','cpl');[['Corte de talud (ensanche)',90],['Roca fija (voladura)',154],['Mejoramiento subrasante',218]].forEach(([t,y])=>{const d=el('div',null,t);d.style.top=(y*k-10)+'px';lc.append(d)});
