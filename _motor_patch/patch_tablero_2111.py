@@ -110,7 +110,7 @@ def patch_html(h):
         i = h.index('</style>')
         h = h[:i] + CSS + h[i:]
     for o, n in JS:
-        if n in h:
+        if n in h or (n.startswith('box.append(diaResCard()') and 'box.append(semResCard(),' in h):
             continue
         assert h.count(o) == 1, ('no encontrado', o[:60])
         h = h.replace(o, n, 1)

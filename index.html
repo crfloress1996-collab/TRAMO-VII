@@ -480,6 +480,39 @@ function zoomLinear(){
   const cl=el('button','zb zx','✕ Cerrar');const esc=e=>{if(e.key==='Escape')close()};const close=()=>{ov.remove();document.removeEventListener('keydown',esc)};cl.onclick=close;document.addEventListener('keydown',esc);
   bar.append(zm,zl,zp,cl);ov.append(bar,box);document.body.append(ov);draw();cl.focus();
 }
+(function(){const s=document.createElement('style');s.textContent=".wkd{display:flex;gap:3px}.wd{width:22px;height:22px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;font:700 10.5px var(--f-ui,inherit);color:#fff;flex:none}.wd.ok{background:var(--ok)}.wd.warn{background:var(--warn)}.wd.bad{background:var(--bad)}.wd.np{background:var(--track);color:var(--muted)}.wd.fu{background:transparent;border:1px dashed var(--line);color:var(--muted)}.sr td:nth-child(2),.sr td:nth-child(3),.sr td:nth-child(4){width:1px;white-space:nowrap}.sr .ab{min-width:150px}.sr td:first-child{min-width:140px}.sr td:last-child small{max-width:none}";document.head.append(s)})();
+function semResCard(){
+  const E=EST.prod||{},L=D(E.lunes),dl=['L','M','M','J','V','S','D'];
+  const fs=frentes().filter(f=>{const x=prodMain(f);return x&&x.meta});
+  let dk=null;fs.forEach(f=>prodMain(f).dias.forEach(d=>{if(!d.futuro&&d.ef&&(!dk||d.fecha>dk))dk=d.fecha}));
+  const bt=el('button','lnk','Ver producción del día →');bt.onclick=()=>go('dia');
+  const c=card('Producción de la semana '+(E.semana||'')+' · '+fdm(L)+' al '+fdm(new Date(+L+6*864e5)),'Cómo vamos en la semana',bt);
+  const b=el('div','card-b');const t=el('table','ft dr sr');const th=el('thead');const tr=el('tr');
+  [['Frente'],['Día a día'],['Hecho en la semana','r'],['Cumplimiento'],['Lo que más frenó']].forEach(([h,c2])=>tr.append(el('th',c2||null,h)));th.append(tr);t.append(th);const tb=el('tbody');
+  let n80=0;
+  fs.forEach(f=>{const x=prodMain(f);const r=el('tr');r.onclick=()=>go(f.id);
+    const c1=el('td','fn');const nb=el('button',null,f.nombre);nb.onclick=e=>{e.stopPropagation();go(f.id)};c1.append(nb);
+    const c2=el('td');const st=el('div','wkd');
+    x.dias.forEach((d,i)=>{if(i===6&&!(d.v>0))return;const q=x.meta?(d.v||0)/x.meta:0;
+      const s=el('span','wd '+(d.futuro?'fu':!d.ef?'np':q>=1?'ok':q>=.8?'warn':'bad'),dl[i]);
+      s.title=fd(d.fecha)+': '+(d.futuro?'por venir':!d.ef?'sin parte':fmtU(d.v||0,x.und)+' ('+Math.round(q*100)+' %)');st.append(s)});c2.append(st);
+    const c3=el('td','r');const h3=el('div','two');h3.append(el('span','mono',fmtU(x.real||0,x.und)),el('small',null,x.nd?('en '+x.nd+(x.nd>1?' días':' día')+' con parte'):'sin partes'));c3.append(h3);
+    const c4=el('td');const p=x.pct||0,sm=x.sem||(p>=1?'ok':p>=.8?'warn':'bad');if(p>=.8)n80++;
+    const ab=el('div','ab');const tr2=el('div','tr');const ii=el('i');ii.style.width=Math.min(100,p*100)+'%';ii.style.background='var(--'+sm+')';tr2.append(ii);ab.append(tr2,el('b',null,Math.round(p*100)+' %'));c4.append(ab);
+    const c5=el('td');const O=(EST.dia_obs||{})[f.id]||{};const cnt={},ult={};let nota=null;
+    x.dias.map(d=>d.fecha).forEach(k=>{const o=O[k];if(!o)return;const vis={};
+      (o.rx||[]).forEach(z=>{const ca=z.causa||'Otra';if(!vis[ca]){vis[ca]=1;cnt[ca]=(cnt[ca]||0)+1}if(z.que)ult[ca]=z.que});
+      if(!(o.rx||[]).length)(o.causas||[]).forEach(ca=>{if(!vis[ca]){vis[ca]=1;cnt[ca]=(cnt[ca]||0)+1}});
+      if((o.notas||[]).length)nota=o.notas[0]});
+    const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1]);let txt='—';
+    if(top.length){const [ca,n]=top[0];txt=ca+' ('+n+(n>1?' días':' día')+')'+(ult[ca]?': '+ult[ca]:'');if(txt.length>140)txt=txt.slice(0,137)+'…';if(top[1])txt+=' · también '+top[1][0]+' ('+top[1][1]+(top[1][1]>1?' días':' día')+')'}
+    else if(nota){txt=nota.length>130?nota.slice(0,127)+'…':nota}
+    c5.append(el('small',null,txt));
+    r.append(c1,c2,c3,c4,c5);tb.append(r)});
+  t.append(tb);const sc=el('div','scroll');sc.append(t);b.append(sc);
+  b.append(el('div','pnote',n80+' de '+fs.length+' frentes van sobre el 80 % de su meta'+(dk?' (partes hasta el '+fd(dk)+')':'')+'. Cumplimiento = lo hecho ÷ (meta diaria × días con parte). Cada cuadro es un día: verde ≥ meta · ámbar 80–99 % · rojo < 80 % · gris sin parte.'));
+  c.append(b);return c;
+}
 function alertsCard(){
   const c=card('Atención',"Alertas del día");const a=el('div','alerts');
   (EST.alertas||[]).forEach((t,i)=>{const d=el('div','al'+(/CRÍTICO|atrasad|debajo|<|Falta/i.test(t)?'':' w'));const x=t.indexOf(':');d.append(el('i'));const w=el('div');
@@ -933,7 +966,7 @@ function renderDia(){
 }
 function renderGeneral(){
   const v=$('#view');v.textContent='';const box=el('div');box.style.cssText='display:flex;flex-direction:column;gap:18px';
-  box.append(diaResCard(),linearCard(),hitosCard(),ganttCard(null),tableCard());v.append(box);
+  box.append(semResCard(),linearCard(),hitosCard(),ganttCard(null),tableCard());v.append(box);
 }
 function renderFrente(f){
   const v=$('#view');v.textContent='';const box=el('div');box.style.cssText='display:flex;flex-direction:column;gap:18px';
@@ -945,9 +978,12 @@ function renderFrente(f){
   const k=(lab,val,unit,sub,cls)=>{const d=el('div','k '+(cls||''));d.append(el('div','eyebrow',lab));const vv=el('div','v',val);if(unit)vv.append(el('small',null,unit));d.append(vv,el('div','s',sub||''));ks.append(d)};
   k('Avance',pct(f.avance),null,f.avance_sub||'del metrado del frente','acc');
   {const L=faltasOf(f);if(L.length===1&&!f.faltas)k('Falta',fmt(f.falta,f.dec||0),null,f.und);else L.forEach(o=>k(o.lbl,fmt(o.val,o.dec!=null?o.dec:(o.und==='km'?(f.dec||1):0)),o.und,''))}
-  k('Ritmo real',(f.ritmo||'—').split(' (')[0],null,(f.ritmo||'').includes('(')?f.ritmo.slice(f.ritmo.indexOf('(')+1,-1):'');
-  const late=f.meta_fin&&f.fin&&D(f.fin)>D(f.meta_fin);
-  k(f.fin_lbl||'Termina a este ritmo',fd(f.fin),null,f.fin_sub||(f.meta_fin?'plan de cierre '+fd(f.meta_fin)+(late?' · '+days(D(f.meta_fin),D(f.fin))+' días tarde':''):''),late?'bad':'');
+  {const x=prodMain(f);if(x&&x.meta){const dc=x.ratio<10&&x.ratio%1?1:0;k('Ritmo real · semana',fmt(x.ratio,dc),x.und+'/día','meta '+fmt(x.meta)+' '+x.und+'/día · '+pct(x.pct),x.sem==='bad'?'bad':'')}
+  else k('Ritmo real',(f.ritmo||'—').split(' (')[0],null,(f.ritmo||'').includes('(')?f.ritmo.slice(f.ritmo.indexOf('(')+1,-1):'')}
+  if(f.fin_plan||('fin_ritmo' in f)){const fp=f.fin_plan,fr=f.fin_ritmo,dd=fp&&fr?days(D(fp),D(fr)):null;
+    k('Termina a este ritmo',fr?fd(fr):'—',null,(fr?'':'sin avance esta semana · ')+(fp?'según el plan '+fd(fp):'')+(dd>0?' · +'+dd+' días de atraso':dd<0?' · '+(-dd)+' días antes':dd===0?' · a tiempo':''),dd>0?'bad':'')}
+  else{const late=f.meta_fin&&f.fin&&D(f.fin)>D(f.meta_fin);
+  k(f.fin_lbl||'Termina a este ritmo',fd(f.fin),null,f.fin_sub||(f.meta_fin?'plan de cierre '+fd(f.meta_fin)+(late?' · '+days(D(f.meta_fin),D(f.fin))+' días tarde':''):''),late?'bad':'')}
   c.append(ks);
   const fx=el('div','facts');
   if(f.donde){const a=el('div','fact');a.append(el('b',null,'Dónde está'),el('p',null,f.donde));fx.append(a)}
