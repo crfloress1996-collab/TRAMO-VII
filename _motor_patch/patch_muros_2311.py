@@ -1,6 +1,6 @@
 """Parche 23/11 — Muros bolsacreto: lista de los 16 muros (como las zonas del corte) con progresiva, lado,
 longitud, alto, bolsas del muro, hechas, faltan, avance y estado. Sale de la hoja PROGRAMA del CF de muros
-(y de METRADOS PGV para las progresivas de inicio y fin)."""
+(y de METRADOS PGV para las progresivas de inicio y fin). En muros se quita la tarjeta 'Avance por sector'."""
 
 PY_A = "EST['prod'] = dict(semana=f\"S-{LUN.isocalendar()[1]}\""
 PY_ADD = '''# ---------- muros: lista por muro (hojas PROGRAMA y METRADOS PGV del CF de muros) — parche 23/11 muros lista
@@ -72,13 +72,20 @@ def patch_py(s):
     return s.replace(PY_A, PY_ADD + PY_A, 1)
 
 
+CO_O = "if(f.comp)box.append(compCard(f));"
+CO_N = "if(f.comp&&!(f.muros_lista&&f.muros_lista.length))box.append(compCard(f));"   # muros: solo la lista, sin 'Avance por sector'
+
+
 def patch_html(h):
-    if 'function murosCard' in h:
-        return h
-    assert h.count(JS_O) == 1, 'corteCard en renderFrente'
-    h = h.replace(JS_O, JS_N, 1)
-    assert h.count('function alertsCard(){') == 1
-    return h.replace('function alertsCard(){', FN + 'function alertsCard(){', 1)
+    if 'function murosCard' not in h:
+        assert h.count(JS_O) == 1, 'corteCard en renderFrente'
+        h = h.replace(JS_O, JS_N, 1)
+        assert h.count('function alertsCard(){') == 1
+        h = h.replace('function alertsCard(){', FN + 'function alertsCard(){', 1)
+    if CO_N not in h:
+        assert h.count(CO_O) == 1, 'compCard en renderFrente'
+        h = h.replace(CO_O, CO_N, 1)
+    return h
 
 
 def aplicar(motor):
