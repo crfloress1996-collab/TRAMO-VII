@@ -27,17 +27,17 @@ except Exception as e:
     print('alcantarillas lista', e)
 '''
 
-FN = r"""(function(){const s=document.createElement('style');s.textContent=".oal th.c,.oal td.c{text-align:center}.oal td.c{vertical-align:middle}.oal .mk{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:12px;font-weight:700;line-height:1}.oal .mk.si{background:color-mix(in srgb,var(--ok) 20%,transparent);color:var(--ok)}.oal .mk.no{box-shadow:inset 0 0 0 1.5px var(--bad);color:var(--bad)}.oal .mk.na{color:var(--faint);font-weight:400}.oal tfoot td.c b{font-family:var(--f-mono)}";document.head.append(s)})();
+FN = r"""/*alc-v2*/(function(){const s=document.createElement('style');s.textContent=".cul tr.cus td{white-space:normal}.oal th.c,.oal td.c{text-align:center}.oal td.c{vertical-align:middle}.oal .mk{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:12px;font-weight:700;line-height:1}.oal .mk.si{background:color-mix(in srgb,var(--ok) 20%,transparent);color:var(--ok)}.oal .mk.no{box-shadow:inset 0 0 0 2px var(--bad);width:18px;height:18px}.oal td.c,.oal th.c{padding-left:4px;padding-right:4px}.oal .est{max-width:130px}.oal .mk.na{color:var(--faint);font-weight:400}.oal tfoot td.c b{font-family:var(--f-mono)}";document.head.append(s)})();
 function alcCard(f){
   const ORDS={XIII:1,XIV:2,XV:3},SN={XIII:'mejoramiento',XIV:'conservación periódica',XV:'mejoramiento'};
   const L=[...f.oa_lista].sort((a,b)=>((ORDS[a.sec]||9)-(ORDS[b.sec]||9))||((a.km||0)-(b.km||0)));
   const secs=[...new Set(L.map(t=>t.sec))];
-  const c=card(f.nombre,'Obras por km','✓ hecho · ○ falta · — no lleva');
+  const c=card(f.nombre,'Obras por km','cabezal de entrada y salida, emboquillado y disipador · ✓ hecho · ○ falta · — no lleva');
   const b=el('div','card-b');const t=el('table','ft cul oal');const th=el('thead');const tr=el('tr');
-  [['Km'],['Estructura'],['Cab. entrada','c'],['Cab. salida','c'],['Emboq.','c'],['Disip.','c'],['Estado']].forEach(([h,cc])=>tr.append(el('th',cc||null,h)));th.append(tr);t.append(th);
+  [['Km'],['Estructura'],['Entrada','c'],['Salida','c'],['Emboq.','c'],['Disip.','c'],['Estado']].forEach(([h,cc])=>tr.append(el('th',cc||null,h)));th.append(tr);t.append(th);
   const tb=el('tbody');
   const nice=s=>{s=String(s||'').toLowerCase().replace(/\b(tmc|hdpe|pvc)\b/g,x=>x.toUpperCase()).replace(/ø/g,'Ø');return s.charAt(0).toUpperCase()+s.slice(1)};
-  const mk=v=>{const td=el('td','c');td.append(el('span','mk '+(v===1?'si':v===0?'no':'na'),v===1?'✓':v===0?'○':'—'));return td};
+  const mk=v=>{const td=el('td','c');td.append(el('span','mk '+(v===1?'si':v===0?'no':'na'),v===1?'✓':v===0?'':'—'));return td};
   const EL=['ent','sal','emb','dis'];
   const cnt=R=>{const o={};EL.forEach(k=>{o[k]=[R.filter(x=>x[k]===1).length,R.filter(x=>x[k]===0||x[k]===1).length]});o.term=R.filter(x=>EL.every(k=>x[k]!==0)).length;o.n=R.length;return o};
   const fr=(a)=>a[1]?a[0]+' de '+a[1]:'—';
@@ -47,7 +47,7 @@ function alcCard(f){
     if(!(('oa'+sec) in CU_OPEN))CU_OPEN['oa'+sec]=pend>0;
     const sr=el('tr','cus');const sd=el('td');sd.colSpan=7;const tg=el('span','tg',CU_OPEN['oa'+sec]?'▾':'▸');
     const cab=[S.ent[0]+S.sal[0],S.ent[1]+S.sal[1]];
-    const txt=['  ·  '+S.n+(S.n>1?' obras':' obra'),S.term+' completas','cabezales '+fr(cab)];
+    const txt=['  ·  '+S.n+(S.n>1?' obras':' obra'),S.term+(S.term===1?' completa':' completas'),'cabezales '+fr(cab)];
     if(S.emb[1])txt.push('emboquillados '+fr(S.emb));if(S.dis[1])txt.push('disipadores '+fr(S.dis));
     sd.append(tg,el('b',null,'Sector '+sec+(SN[sec]?' · '+SN[sec]:'')),document.createTextNode(txt.join(' · ')));
     sr.append(sd);tb.append(sr);
@@ -66,7 +66,7 @@ function alcCard(f){
       const kmn=m.km!=null?Math.floor(m.km/1000):null;const nk=kmn!==kk;
       const r=el('tr',(est.includes('PROCESO')?'curun':'')+(nk&&kk!==null?' kmt':'')||null);kk=kmn;
       r.append(el('td','kmc',nk&&kmn!=null?String(kmn):''));
-      const c2=el('td');const d2=el('div','two');d2.append(el('b',null,m.cod));d2.append(el('small',null,nice(m.tipo).replace(/\s*\(obra comp[^)]*\)?/i,' (obra complementaria)')+(m.largo?' · '+fmt(m.largo,m.largo%1?2:0)+' m':'')));c2.append(d2);r.append(c2);
+      const c2=el('td');const d2=el('div','two');d2.append(el('b',null,m.cod));const ti=String(m.clase||'').toUpperCase()==='OC'?'Obra complementaria':nice(m.tipo).replace(/^(alcantarilla|pase de agua)\s+/i,'');d2.append(el('small',null,ti+(m.largo?' · '+fmt(m.largo,m.largo%1?2:0)+' m':'')));c2.append(d2);r.append(c2);
       EL.forEach(k=>r.append(mk(m[k])));
       const ce=el('td');const es=el('div','est',lab+(fe?' · '+fe:''));es.style.color=sm==='na'?'var(--muted)':'var(--'+sm+')';ce.append(es);r.append(ce);
       if(m.obs)r.title=m.obs;
@@ -97,6 +97,10 @@ def patch_py(s):
 
 
 def patch_html(h):
+    if 'function alcCard' in h and '/*alc-v2*/' not in h:     # versión anterior de la tarjeta: se reemplaza
+        i = h.index("(function(){const s=document.createElement('style');s.textContent=\".oal ")
+        j = h.index('function alertsCard(){', i)
+        h = h[:i] + FN + h[j:]
     if 'function alcCard' not in h:
         assert h.count(JS_O) == 1, 'cunetasCard en renderFrente'
         h = h.replace(JS_O, JS_N, 1)
