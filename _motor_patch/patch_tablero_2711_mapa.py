@@ -143,7 +143,8 @@ NAV_N = NAV_O + "const gm=el('button','gen');gm.dataset.v='mapa';gm.append(el('s
 RD_O = "else if(VIEW==='dia'){RF='todos';renderDia()}"
 RD_N = "else if(VIEW==='mapa'){RF='todos';renderMapa()}" + RD_O
 KP_O = "$('#kpis').style.display=(f||VIEW==='dia')?'none':'';"
-KP_N = "$('#kpis').style.display=(f||VIEW==='dia'||VIEW==='mapa')?'none':'';"
+KP_N = KP_O + "if(VIEW==='mapa')$('#kpis').style.display='none';"   # deja intacta la marca de patch_kpis_2111
+KP_X = "$('#kpis').style.display=(f||VIEW==='dia'||VIEW==='mapa')?'none':'';"   # versión anterior de este parche
 
 
 def patch_py(s):
@@ -157,6 +158,8 @@ def patch_html(h):
     if '/*mapa-v1*/' not in h:
         assert h.count('function alertsCard(){') == 1
         h = h.replace('function alertsCard(){', FN + 'function alertsCard(){', 1)
+    if KP_X in h:
+        h = h.replace(KP_X, KP_N, 1)
     for o, n in ((NAV_O, NAV_N), (RD_O, RD_N), (KP_O, KP_N)):
         if n not in h:
             assert h.count(o) == 1, o[:40]
