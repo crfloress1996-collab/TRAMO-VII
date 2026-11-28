@@ -1,4 +1,4 @@
-"""Parche 27/11 — Pestaña MAPA (v10: carriles como corte transversal — capas del pavimento al centro, cuneta pegada a la derecha y corte encima; solo cuentan los frentes que hay en la zona que se ve; v9: botón Ejecutado S-xx para ver lo ejecutado de la semana con rayado, igual que Programado; v8: canteras como área con su nombre, planta/agua/acopios como pines con símbolo y nombre; radio de área en la columna I de PUNTOS_MAPA.xlsx; v7: muros como barra al lado de la vía y alcantarillas como barra que la cruza, rellenas según avance, con longitud y altura en el detalle; v6: lo programado solo se ve con el botón Programado; v5: cada frente con su color y el estado por tipo de línea — continua hecho, rayado ejecutado en la semana, puntos en proceso, guiones programado, doble línea falta —; uno, varios o todos los frentes a la vez en carriles, aviso de cruces, pantalla completa con Esc, el zoom se mantiene al cambiar de frente, pendiente en rojo en todos los frentes, lo ejecutado en la semana rayado y fondo satelital sin el aviso 'Map data not yet available' al acercar): eje del Tramo VII (KMZ Ejes_Chala@Puquio, punto cada 20 m) con progresivas,
+"""Parche 27/11 — Pestaña MAPA (v11: stock de plantas y canteras en el detalle del punto y progresiva en la etiqueta; tipo Planta de concreto; v10: carriles como corte transversal — capas del pavimento al centro, cuneta pegada a la derecha y corte encima; solo cuentan los frentes que hay en la zona que se ve; v9: botón Ejecutado S-xx para ver lo ejecutado de la semana con rayado, igual que Programado; v8: canteras como área con su nombre, planta/agua/acopios como pines con símbolo y nombre; radio de área en la columna I de PUNTOS_MAPA.xlsx; v7: muros como barra al lado de la vía y alcantarillas como barra que la cruza, rellenas según avance, con longitud y altura en el detalle; v6: lo programado solo se ve con el botón Programado; v5: cada frente con su color y el estado por tipo de línea — continua hecho, rayado ejecutado en la semana, puntos en proceso, guiones programado, doble línea falta —; uno, varios o todos los frentes a la vez en carriles, aviso de cruces, pantalla completa con Esc, el zoom se mantiene al cambiar de frente, pendiente en rojo en todos los frentes, lo ejecutado en la semana rayado y fondo satelital sin el aviso 'Map data not yet available' al acercar): eje del Tramo VII (KMZ Ejes_Chala@Puquio, punto cada 20 m) con progresivas,
 avance por actividad (base, imprimación, micro 1ra/2da, corte XV, cunetas, alcantarillas, muros), lo programado de la
 semana, lo ejecutado día por día, los frentes de hoy (vista inicial) y los puntos fijos de PUNTOS_MAPA.xlsx.
 Fondo satelital/relieve (Esri) donde la página puede cargar imágenes externas; si no, se ve sin fondo.
@@ -38,7 +38,7 @@ except Exception as e:
     print('mapa puntos', e)
 '''
 
-FN = r"""/*mapa-v10*/(function(){const s=document.createElement('style');s.textContent=".mp-card .mp-bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line2)}.mp-card .mp-bar .mp-lb{font-size:12px;color:var(--muted);margin-right:2px}.mp-chip{font:inherit;font-size:13px;font-weight:600;padding:6px 11px;min-height:34px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}.mp-chip[aria-pressed=true]{background:var(--navy);border-color:var(--navy);color:#fff}.mp-chip.mp-sec{font-weight:500;color:var(--muted)}.mp-chip.mp-pg{border-style:dashed;border-width:1.5px}.mp-chip.mp-pg[aria-pressed=true]{border-style:solid}.mp-chip i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:0;box-shadow:0 0 0 1.5px #fff}.mp-go{display:flex;gap:6px;margin-left:auto}.mp-go input{font:inherit;font-size:16px;width:150px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink)}#mp-map{height:min(72vh,760px);min-height:420px;background:var(--sunk);z-index:0}.mp-leg{display:flex;flex-wrap:wrap;gap:6px 16px;padding:10px 16px;font-size:12px;color:var(--muted);border-top:1px solid var(--line2)}.mp-leg span{display:inline-flex;align-items:center;gap:6px}.mp-leg svg{flex:none}.mp-leg b.mp-dot{display:inline-block;width:12px;height:12px;border-radius:50%}.mp-leg b.mp-sq{display:inline-block;width:12px;height:12px;border-radius:2px}.mp-leg b.mp-mk{display:inline-block;width:24px;height:10px;border:2px solid var(--ink);box-sizing:border-box;border-radius:2px}.mp-leg b.mp-hx{display:inline-block;width:26px;height:9px;background:repeating-linear-gradient(45deg,var(--ink) 0 3px,#fff 3px 5.5px);box-shadow:0 0 0 1px var(--ink)}.mp-note{padding:8px 16px;font-size:12px;color:var(--warn);background:var(--warn-s)}.mp-km span{display:inline-block;transform:translate(-50%,-50%);background:rgba(17,22,33,.78);color:#fff;font:600 11px/1.3 var(--f-mono,monospace);padding:1px 5px;border-radius:4px;white-space:nowrap;pointer-events:none}.mp-km.mp-kc span{background:rgba(17,22,33,.55);font-size:10px;font-weight:500}.mp-pt span{display:inline-flex;align-items:center;justify-content:center;transform:translate(-50%,-50%);min-width:24px;height:24px;padding:0 5px;border-radius:12px;color:#fff;font:700 11px/1 var(--f-body,sans-serif);border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.45);white-space:nowrap}.mp-pt.mp-lg span{padding:0 8px}.mp-mu span,.mp-oa span{display:block;box-sizing:border-box;border:2.5px solid;box-shadow:0 0 0 2px #fff,0 1px 5px rgba(0,0,0,.6)}.mp-mu span{border-radius:2px}.mp-oa span{border-radius:6px}.mp-pop .mp-k{color:#5B6474}.mp-pop strong{font-weight:700}.mp-pt2 .mp-pin{position:absolute;left:-15px;top:-39px;line-height:0;filter:drop-shadow(0 1px 3px rgba(0,0,0,.55))}.mp-pt2 .mp-ptl{position:absolute;left:15px;top:-35px;white-space:nowrap;background:rgba(17,22,33,.86);color:#fff;font:700 12px/1.25 var(--f-body,sans-serif);padding:3px 8px;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.45);pointer-events:none}.mp-area span{display:inline-flex;align-items:center;gap:5px;transform:translate(-50%,6px);white-space:nowrap;color:#fff;font:700 12px/1.25 var(--f-body,sans-serif);padding:3px 9px 3px 6px;border-radius:999px;border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.5)}.mp-area span i{font-style:normal}#mp-map.mp-lo .mp-ptl,#mp-map.mp-lo .mp-area span i{display:none}#mp-map.mp-lo .mp-area span{padding:3px}.mp-fr span{display:inline-block;transform:translate(-50%,-130%);color:#fff;font:700 12px/1.3 var(--f-body,sans-serif);padding:3px 8px;border-radius:6px;box-shadow:0 1px 5px rgba(0,0,0,.5);white-space:nowrap}.mp-pop{font:13px/1.45 var(--f-body,sans-serif);color:#111621;min-width:180px}.mp-pop b{display:block;font-size:14px;margin-bottom:2px}.mp-pop small{color:#5B6474}.mp-pop a{display:inline-block;margin-top:6px;font-weight:600}.mp-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;padding:12px 16px}.mp-list button{font:inherit;text-align:left;padding:9px 11px;border:1px solid var(--line);border-left:5px solid var(--c);border-radius:8px;background:var(--panel);color:var(--ink);cursor:pointer}.mp-list button small{display:block;color:var(--muted);font-size:12px;margin-top:2px}.mp-int{padding:4px 16px 14px}.mp-int h3{font-size:13px;margin:8px 0 6px;color:var(--ink)}.mp-int p{margin:0;font-size:13px;color:var(--muted)}.mp-int button{display:flex;gap:10px;align-items:baseline;width:100%;font:inherit;font-size:13px;text-align:left;padding:8px 10px;margin-top:6px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);cursor:pointer}.mp-int button b{flex:none;min-width:86px;font-family:var(--f-mono,monospace);font-size:12px}.mp-int button.x b{color:var(--bad)}.mp-int button.c b{color:var(--warn)}.mp-card.mp-full{position:fixed;inset:0;z-index:9000;margin:0;border-radius:0;max-width:none;display:flex;flex-direction:column;background:var(--panel)}.mp-card.mp-full #mp-map{flex:1 1 auto;height:auto;min-height:0}.mp-card.mp-full>.card-h,.mp-card.mp-full .mp-int,.mp-card.mp-full .mp-list{display:none}.mp-card.mp-full .mp-bar{padding:8px 12px}.mp-card.mp-full .mp-leg{padding:6px 12px}";document.head.append(s)})();
+FN = r"""/*mapa-v11*/(function(){const s=document.createElement('style');s.textContent=".mp-card .mp-bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line2)}.mp-card .mp-bar .mp-lb{font-size:12px;color:var(--muted);margin-right:2px}.mp-chip{font:inherit;font-size:13px;font-weight:600;padding:6px 11px;min-height:34px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}.mp-chip[aria-pressed=true]{background:var(--navy);border-color:var(--navy);color:#fff}.mp-chip.mp-sec{font-weight:500;color:var(--muted)}.mp-chip.mp-pg{border-style:dashed;border-width:1.5px}.mp-chip.mp-pg[aria-pressed=true]{border-style:solid}.mp-chip i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:0;box-shadow:0 0 0 1.5px #fff}.mp-go{display:flex;gap:6px;margin-left:auto}.mp-go input{font:inherit;font-size:16px;width:150px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink)}#mp-map{height:min(72vh,760px);min-height:420px;background:var(--sunk);z-index:0}.mp-leg{display:flex;flex-wrap:wrap;gap:6px 16px;padding:10px 16px;font-size:12px;color:var(--muted);border-top:1px solid var(--line2)}.mp-leg span{display:inline-flex;align-items:center;gap:6px}.mp-leg svg{flex:none}.mp-leg b.mp-dot{display:inline-block;width:12px;height:12px;border-radius:50%}.mp-leg b.mp-sq{display:inline-block;width:12px;height:12px;border-radius:2px}.mp-leg b.mp-mk{display:inline-block;width:24px;height:10px;border:2px solid var(--ink);box-sizing:border-box;border-radius:2px}.mp-leg b.mp-hx{display:inline-block;width:26px;height:9px;background:repeating-linear-gradient(45deg,var(--ink) 0 3px,#fff 3px 5.5px);box-shadow:0 0 0 1px var(--ink)}.mp-note{padding:8px 16px;font-size:12px;color:var(--warn);background:var(--warn-s)}.mp-km span{display:inline-block;transform:translate(-50%,-50%);background:rgba(17,22,33,.78);color:#fff;font:600 11px/1.3 var(--f-mono,monospace);padding:1px 5px;border-radius:4px;white-space:nowrap;pointer-events:none}.mp-km.mp-kc span{background:rgba(17,22,33,.55);font-size:10px;font-weight:500}.mp-pt span{display:inline-flex;align-items:center;justify-content:center;transform:translate(-50%,-50%);min-width:24px;height:24px;padding:0 5px;border-radius:12px;color:#fff;font:700 11px/1 var(--f-body,sans-serif);border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.45);white-space:nowrap}.mp-pt.mp-lg span{padding:0 8px}.mp-mu span,.mp-oa span{display:block;box-sizing:border-box;border:2.5px solid;box-shadow:0 0 0 2px #fff,0 1px 5px rgba(0,0,0,.6)}.mp-mu span{border-radius:2px}.mp-oa span{border-radius:6px}.mp-pop .mp-k{color:#5B6474}.mp-pop strong{font-weight:700}.mp-stk{margin-top:6px;padding-top:6px;border-top:1px solid #e5e7eb;max-width:290px}.mp-pop .mp-stk b{font-size:13px;margin:0}.mp-stk table{border-collapse:collapse;width:100%;margin:4px 0}.mp-stk td{padding:2px 0;font-size:12.5px;vertical-align:top}.mp-stk td+td{text-align:right;font-weight:700;padding-left:10px;white-space:nowrap}.mp-stk tr.bad td{color:#b91c1c}.mp-stk tr.s td{color:#6b7280;font-size:11.5px;padding:0 0 3px}.mp-stk small{display:block}.mp-stk small.w{color:#b45309}.mp-ptl em,.mp-area em{font-style:normal;font-weight:600;opacity:.8}.mp-pt2 .mp-pin{position:absolute;left:-15px;top:-39px;line-height:0;filter:drop-shadow(0 1px 3px rgba(0,0,0,.55))}.mp-pt2 .mp-ptl{position:absolute;left:15px;top:-35px;white-space:nowrap;background:rgba(17,22,33,.86);color:#fff;font:700 12px/1.25 var(--f-body,sans-serif);padding:3px 8px;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.45);pointer-events:none}.mp-area span{display:inline-flex;align-items:center;gap:5px;transform:translate(-50%,6px);white-space:nowrap;color:#fff;font:700 12px/1.25 var(--f-body,sans-serif);padding:3px 9px 3px 6px;border-radius:999px;border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.5)}.mp-area span i{font-style:normal}#mp-map.mp-lo .mp-ptl,#mp-map.mp-lo .mp-area span i{display:none}#mp-map.mp-lo .mp-area span{padding:3px}.mp-fr span{display:inline-block;transform:translate(-50%,-130%);color:#fff;font:700 12px/1.3 var(--f-body,sans-serif);padding:3px 8px;border-radius:6px;box-shadow:0 1px 5px rgba(0,0,0,.5);white-space:nowrap}.mp-pop{font:13px/1.45 var(--f-body,sans-serif);color:#111621;min-width:180px}.mp-pop b{display:block;font-size:14px;margin-bottom:2px}.mp-pop small{color:#5B6474}.mp-pop a{display:inline-block;margin-top:6px;font-weight:600}.mp-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;padding:12px 16px}.mp-list button{font:inherit;text-align:left;padding:9px 11px;border:1px solid var(--line);border-left:5px solid var(--c);border-radius:8px;background:var(--panel);color:var(--ink);cursor:pointer}.mp-list button small{display:block;color:var(--muted);font-size:12px;margin-top:2px}.mp-int{padding:4px 16px 14px}.mp-int h3{font-size:13px;margin:8px 0 6px;color:var(--ink)}.mp-int p{margin:0;font-size:13px;color:var(--muted)}.mp-int button{display:flex;gap:10px;align-items:baseline;width:100%;font:inherit;font-size:13px;text-align:left;padding:8px 10px;margin-top:6px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);cursor:pointer}.mp-int button b{flex:none;min-width:86px;font-family:var(--f-mono,monospace);font-size:12px}.mp-int button.x b{color:var(--bad)}.mp-int button.c b{color:var(--warn)}.mp-card.mp-full{position:fixed;inset:0;z-index:9000;margin:0;border-radius:0;max-width:none;display:flex;flex-direction:column;background:var(--panel)}.mp-card.mp-full #mp-map{flex:1 1 auto;height:auto;min-height:0}.mp-card.mp-full>.card-h,.mp-card.mp-full .mp-int,.mp-card.mp-full .mp-list{display:none}.mp-card.mp-full .mp-bar{padding:8px 12px}.mp-card.mp-full .mp-leg{padding:6px 12px}";document.head.append(s)})();
 let MAPI=null,LLP=null,EJE=null,MBASE='sat',MPROG=false;const MSEL=new Set(['hoy']);
 window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.querySelector('.mp-card.mp-full')&&window.__mpFull)window.__mpFull(false)});
 window.addEventListener('hashchange',()=>{document.body.style.overflow=''});
@@ -60,7 +60,7 @@ const MLANE=['corte','base','imp','mp1','mp2','cun'];
 const MST={ok:'#22c55e',mid:'#facc15',run:'#fb923c',bad:'#ef4444'};
 const MPT={'Acopio':['A','#a16207'],'Punto de agua':['Agua','#0284c7'],'Cantera':['C','#7c3aed'],'Planta':['P','#db2777'],'DME':['DME','#57534e'],'Campamento':['Cp','#059669'],'Descarga':['D','#ea580c'],'Otro':['•','#475569']};
 MACT.mur[1]='#57534e';let MSEMV=false;
-Object.assign(MPT,{'Cantera':['<path d="M1.5 20.5 8 9l3.5 5.5L15 7l7.5 13.5z"/>','#9a3412'],'Planta':['<path d="M2 21v-9l5.5 3.2V12l5.5 3.2V5h3.5v16zM18 9h3v12h-3z"/>','#4338ca'],'Punto de agua':['<path d="M12 2.5C8.5 8 5.5 11.3 5.5 15a6.5 6.5 0 0 0 13 0c0-3.7-3-7-6.5-12.5z"/>','#0284c7'],'Acopio':['<path d="M1.5 20C4 13.5 8 9 12 9s8 4.5 10.5 11z"/>','#a16207'],'DME':['<path d="M2 21c2.2-4.5 6-7 10-7s7.8 2.5 10 7zM10.5 2h3v5h3L12 12 7.5 7h3z"/>','#57534e'],'Campamento':['<path fill-rule="evenodd" d="M12 3 22.5 21h-21zM12 13l-3.5 8h7z"/>','#059669'],'Descarga':['<path d="M10.5 2h3v8h3.5L12 15.5 7 10h3.5zM3 18h18v3H3z"/>','#ea580c'],'Otro':['<circle cx="12" cy="12" r="5"/>','#475569']});
+Object.assign(MPT,{'Cantera':['<path d="M1.5 20.5 8 9l3.5 5.5L15 7l7.5 13.5z"/>','#9a3412'],'Planta':['<path d="M2 21v-9l5.5 3.2V12l5.5 3.2V5h3.5v16zM18 9h3v12h-3z"/>','#4338ca'],'Punto de agua':['<path d="M12 2.5C8.5 8 5.5 11.3 5.5 15a6.5 6.5 0 0 0 13 0c0-3.7-3-7-6.5-12.5z"/>','#0284c7'],'Acopio':['<path d="M1.5 20C4 13.5 8 9 12 9s8 4.5 10.5 11z"/>','#a16207'],'DME':['<path d="M2 21c2.2-4.5 6-7 10-7s7.8 2.5 10 7zM10.5 2h3v5h3L12 12 7.5 7h3z"/>','#57534e'],'Campamento':['<path fill-rule="evenodd" d="M12 3 22.5 21h-21zM12 13l-3.5 8h7z"/>','#059669'],'Descarga':['<path d="M10.5 2h3v8h3.5L12 15.5 7 10h3.5zM3 18h18v3H3z"/>','#ea580c'],'Otro':['<circle cx="12" cy="12" r="5"/>','#475569'],'Planta de concreto':['<path fill-rule="evenodd" d="M3 2h6v11l-3 4-3-4zM11 9h10v12H11zm2 3v2.5h2.5V12zm4 0v2.5h2.5V12zM5 19h2v3H5z"/>','#0f766e']});
 const pinSvg=(c,g,s)=>'<svg width="'+Math.round(30*s)+'" height="'+Math.round(40*s)+'" viewBox="0 0 30 40"><path d="M15 38.5S3 24.5 3 15a12 12 0 1 1 24 0c0 9.5-12 23.5-12 23.5z" fill="'+c+'" stroke="#fff" stroke-width="2.5"/><g transform="translate(6 6) scale(.75)" fill="#fff">'+g+'</g></svg>';
 const mkBar=(c,p)=>{const q=Math.round(Math.max(0,Math.min(1,p))*100);return 'border-color:'+c+';background:'+(q>=100?c:q<=0?'#fff':'linear-gradient(90deg,'+c+' '+q+'%,#fff '+q+'%)')};
 const n1=v=>fmt(v,Number.isInteger(+v)?0:1),cap=s=>s?String(s)[0]+String(s).slice(1).toLowerCase():'',prow=(k,v)=>'<br><span class="mp-k">'+k+':</span> '+v;
@@ -118,12 +118,13 @@ function renderMapa(){
       KM.addLayer(L.marker(ll,{icon:L.divIcon({className:'mp-km'+(mj?'':' mp-kc'),html:'<span>'+(mj?String(k/1000):km(k))+'</span>',iconSize:null}),interactive:false,keyboard:false}))}}
   const lanes=()=>MLANE.filter(x=>MSEL.has(x));
   function mpp(){if(!MAPI._loaded)return 0;const c=MAPI.getCenter();return 156543.03392*Math.cos(c.lat*Math.PI/180)/Math.pow(2,MAPI.getZoom())}
+  function stkHtml(s){if(!s||!(s.items||[]).length&&!s.nota)return '';return '<div class="mp-stk"><b>Stock</b>'+(s.t?'<small>'+mesc(s.t)+'</small>':'')+'<table>'+(s.items||[]).map(i=>'<tr'+(i.bad?' class="bad"':'')+'><td>'+mesc(i.l)+'</td><td>'+fmt(i.v,(i.v%1&&Math.abs(i.v)<100)?1:0)+' '+mesc(i.u||'')+'</td></tr>'+(i.s?'<tr class="s"><td colspan="2">'+mesc(i.s)+'</td></tr>':'')).join('')+'</table>'+(s.nota?'<small'+(s.warn?' class="w"':'')+'>'+mesc(s.nota)+'</small>':'')+'</div>'}
   function pts(){PT.clearLayers();const lo=()=>md.classList.toggle('mp-lo',MAPI.getZoom()<14);lo();if(!MAPI._mpLo){MAPI._mpLo=1;MAPI.on('zoomend',lo);MAPI.on('moveend',()=>{if(JSON.stringify(laneMap())!==LKEY)drawV(false)})}
     (EST.puntos||[]).forEach(p=>{const ll=(p.lat!=null&&p.lon!=null)?[p.lat,p.lon]:(p.km!=null?kOff(p.km,p.lado,30):null);if(!ll)return;const t=MPT[p.tipo]||MPT.Otro,c=t[1];
-      const pop='<div class="mp-pop"><b>'+mesc(p.nombre)+'</b><small>'+mesc(p.tipo)+(p.km!=null?' · km '+km(p.km):'')+(p.lado?' · '+mesc(p.lado):'')+'</small>'+(p.radio?prow('Área','radio aprox. '+fmt(p.radio)+' m'):'')+(p.nota?'<br><small>'+mesc(p.nota)+'</small>':'')+'<br>'+gmap(ll)+'</div>';
+      const pop='<div class="mp-pop"><b>'+mesc(p.nombre)+'</b><small>'+mesc(p.tipo)+(p.km!=null?' · km '+km(p.km):'')+(p.lado?' · '+mesc(p.lado):'')+'</small>'+(p.radio?prow('Área','radio aprox. '+fmt(p.radio)+' m'):'')+(p.nota?'<br><small>'+mesc(p.nota)+'</small>':'')+stkHtml(p.stock)+'<br>'+gmap(ll)+'</div>',kt=(p.km!=null?' · km '+km(p.km):'')+(p.stock?' <em>· ver stock</em>':'');
       if(p.radio){PT.addLayer(L.circle(ll,{radius:p.radio,color:c,weight:2.5,dashArray:'7 5',fillColor:c,fillOpacity:.15}).bindPopup(pop));
-        PT.addLayer(L.marker([ll[0]-p.radio/110574,ll[1]],{icon:L.divIcon({className:'mp-area',html:'<span style="background:'+c+'"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff">'+t[0]+'</svg><i>'+mesc(p.nombre)+'</i></span>',iconSize:null,popupAnchor:[0,4]}),title:p.nombre}).bindPopup(pop));return}
-      PT.addLayer(L.marker(ll,{icon:L.divIcon({className:'mp-pt2',html:'<div class="mp-pin">'+pinSvg(c,t[0],1)+'</div><span class="mp-ptl">'+mesc(p.nombre)+'</span>',iconSize:null,popupAnchor:[0,-36]}),title:p.nombre,riseOnHover:true}).bindPopup(pop))})}
+        PT.addLayer(L.marker([ll[0]-p.radio/110574,ll[1]],{icon:L.divIcon({className:'mp-area',html:'<span style="background:'+c+'"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff">'+t[0]+'</svg><i>'+mesc(p.nombre)+kt+'</i></span>',iconSize:null,popupAnchor:[0,4]}),title:p.nombre}).bindPopup(pop));return}
+      PT.addLayer(L.marker(ll,{icon:L.divIcon({className:'mp-pt2',html:'<div class="mp-pin">'+pinSvg(c,t[0],1)+'</div><span class="mp-ptl">'+mesc(p.nombre)+kt+'</span>',iconSize:null,popupAnchor:[0,-36]}),title:p.nombre,riseOnHover:true}).bindPopup(pop))})}
   const bx=el('button','mp-chip mp-pg','Ejecutado '+(EST.prod?EST.prod.semana:''));bx.setAttribute('aria-pressed',String(MSEMV));bx.title='Muestra lo ejecutado esta semana con rayado';bx.onclick=()=>{MSEMV=!MSEMV;bx.setAttribute('aria-pressed',String(MSEMV));drawV(false)};bar.insertBefore(bx,ba);
   let LKEY='',LCK='',LMAP={};
   function visKm(){const bd=MAPI.getBounds();let a=1e9,b=-1e9;for(let i=0;i<EJE.p.length;i+=2){if(bd.contains(EJE.p[i])){const k=EJE.k0+i*EJE.st;if(k<a)a=k;if(k>b)b=k}}return a>b?[EJE.k0,EJE.kf]:[a-300,b+300]}
@@ -214,18 +215,111 @@ PY_NEW_TAIL = "            _ra = _r[8] if len(_r) > 8 and isinstance(_r[8], (int
 PY_OLD = PY_ADD.replace(' · v2 (radio de área)', '').replace(PY_NEW_TAIL, PY_OLD_TAIL)   # versión anterior (sin radio)
 
 
+PY_STK = r'''# ---------- mapa: stock en plantas y canteras — parche 28/11 stock puntos
+try:
+    import glob as _glk, openpyxl as _oxk, datetime as _dtk, re as _rek, os as _osk
+
+    def _xfk(pat):
+        _c = sorted(p for p in _glk.glob(_osk.path.join(ROOT, '**', pat), recursive=True) if 'espaldo' not in p and 'RESPALDO' not in p)
+        return _c[0] if _c else None
+
+    def _labk(ws, rx, maxc=14):
+        for _r in ws.iter_rows(values_only=True):
+            if _r and _r[0] is not None and _rek.search(rx, str(_r[0]), _rek.I):
+                for _v in _r[1:maxc]:
+                    if isinstance(_v, (int, float)) and not isinstance(_v, bool):
+                        return _v
+        return None
+
+    _FRK = {f['id']: f for f in EST.get('frentes', [])}
+    _STK = {}
+    # planta de suelos: saldos del cuaderno de planta (ya calculados para el frente planta)
+    _pk = [k for k in ((_FRK.get('planta') or {}).get('prod') or {}).get('kpis', []) if str(k.get('g', '')).startswith('Saldo')]
+    if _pk:
+        _STK['suelos'] = dict(t=_pk[0].get('g'), items=[dict(l=k['l'], v=k['v'], u=k.get('u', ''), s=k.get('s'), bad=bool(k.get('bad'))) for k in _pk])
+    # cantera San Pedro: hoja ACOPIOS (producido − salidas registradas)
+    _pp = _xfk('CONTROL_CANTERA_SAN_PEDRO_v2.xlsx')
+    if _pp:
+        _w = _oxk.load_workbook(_pp, data_only=True, read_only=True)
+        _row = next((r for r in _w['ACOPIOS'].iter_rows(min_row=10, max_row=25, values_only=True) if len(r) > 6 and r[2] == 'CANTERA'), None)
+        _cons = [r for r in _w['ACOPIOS'].iter_rows(min_row=10, max_row=25, values_only=True) if len(r) > 6 and r[2] == 'CONSUMO']
+        _sal = sum(sum(v for v in r[3:6] if isinstance(v, (int, float))) for r in _cons)
+        _it = []
+        if _row:
+            for _i, _n in ((3, 'Agregado micropavimento'), (4, 'Base (emulsión)'), (5, 'Arena')):
+                if isinstance(_row[_i], (int, float)):
+                    _it.append(dict(l=_n, v=_row[_i], u='m³'))
+        _fa = ((_FRK.get('canteras') or {}).get('faltas') or [None])[0]
+        _no = ('Sin salidas registradas en la hoja ACOPIOS: estos valores son lo producido, no el stock real que queda en cantera.' if not _sal else '')
+        if _fa:
+            _no += ' Falta producir %s: %s m³.' % (_fa.get('lbl', ''), '{:,}'.format(round(_fa.get('val') or 0)))
+        _STK['san pedro'] = dict(t='Hoja ACOPIOS · producido − salidas', items=_it, nota=_no.strip(), warn=not _sal)
+        _w.close()
+    # cantera Santa Cruz: resumen de aporte (acopio zarandeado y cemento)
+    _pp = _xfk('CONTROL_PRODUCCION_CANTERA_SANTA_CRUZ.xlsx')
+    if _pp:
+        _w = _oxk.load_workbook(_pp, data_only=True, read_only=True)
+        _ws = _w['RESUMEN APORTE']
+        _sa = _labk(_ws, r'^Stock en acopio hoy')
+        _ce = _labk(_ws, r'^Stock de cemento hoy$')
+        _fe = next((r[2] for r in _ws.iter_rows(min_row=5, max_row=5, values_only=True)), '')
+        _it = []
+        if _sa is not None:
+            _it.append(dict(l='Material zarandeado en acopio', v=_sa, u='m³', s='zarandeado − despachado', bad=_sa < 0))
+        if _ce is not None:
+            _it.append(dict(l='Cemento en almacén', v=_ce, u='big bags', s='hoja CEMENTO'))
+        _STK['santa cruz'] = dict(t=str(_fe or ''), items=_it,
+                                  nota='Cantera cerrada desde el 09/11.' + (' El acopio da negativo: se despachó más de lo que figura como zarandeado.' if _sa is not None and _sa < 0 else ''))
+        _w.close()
+    # planta de concreto de cunetas: lo que falta (no hay registro de stock)
+    _pp = _xfk('CF_F-11_CUNETAS_TRAMO_VII.xlsx')
+    if _pp:
+        _w = _oxk.load_workbook(_pp, data_only=True, read_only=True)
+        _fr = next((r for r in _w['MATERIALES'].iter_rows(values_only=True) if r and str(r[0] or '').startswith('FALTA')), None)
+        _it = []
+        if _fr:
+            for _i, _n, _u in ((3, 'Concreto', 'm³'), (4, 'Piedra chancada', 'm³'), (5, 'Arena', 'm³'), (8, 'Cemento', 'big bags')):
+                if isinstance(_fr[_i], (int, float)):
+                    _it.append(dict(l=_n, v=round(_fr[_i]), u=_u))
+        _ul = None
+        for _r in _w['PARTE DIARIO'].iter_rows(min_row=7, values_only=True):
+            if _r and isinstance(_r[0], _dtk.datetime):
+                _ul = _r
+        _no = 'No hay registro de stock en la planta: el Excel de cunetas no tiene ingresos de piedra, arena ni cemento.'
+        if _ul and len(_ul) > 29 and isinstance(_ul[29], (int, float)):
+            _no += ' Último parte %s: %s big bags de cemento, %s ml de cuneta.' % (_ul[0].strftime('%d/%m'), _ul[29], _ul[21] if isinstance(_ul[21], (int, float)) else '—')
+        _STK['concreto'] = dict(t='Falta para terminar las cunetas (con desperdicio)', items=_it, nota=_no, warn=True)
+        _w.close()
+    for _pt in EST.get('puntos', []):
+        _n, _t = _pt.get('nombre', '').lower(), _pt.get('tipo', '').lower()
+        _k = None
+        if _t.startswith('planta'):
+            _k = 'concreto' if ('concreto' in _n or 'concreto' in _t) else ('suelos' if 'suelos' in _n else None)
+        elif _t.startswith('cantera'):
+            _k = 'san pedro' if 'san pedro' in _n else ('santa cruz' if 'santa cruz' in _n else None)
+        if _k and _k in _STK:
+            _pt['stock'] = _STK[_k]
+except Exception as _e:
+    print('mapa stock', _e)
+'''
+
+
 def patch_py(s):
-    if 'parche 27/11 mapa · v2' in s:
-        return s
-    if PY_OLD in s:
-        return s.replace(PY_OLD, PY_ADD, 1)
-    assert s.count(PY_A) == 1, 'ancla json.dump final'
-    return s.replace(PY_A, PY_ADD + PY_A, 1)
+    if 'parche 27/11 mapa · v2' not in s:
+        if PY_OLD in s:
+            s = s.replace(PY_OLD, PY_ADD, 1)
+        else:
+            assert s.count(PY_A) == 1, 'ancla json.dump final'
+            s = s.replace(PY_A, PY_ADD + PY_A, 1)
+    if 'parche 28/11 stock puntos' not in s:
+        assert s.count(PY_A) == 1, 'ancla json.dump final'
+        s = s.replace(PY_A, PY_STK + PY_A, 1)
+    return s
 
 
 def patch_html(h):
-    if '/*mapa-v10*/' not in h:
-        for old in ('/*mapa-v9*/', '/*mapa-v8*/', '/*mapa-v7*/', '/*mapa-v6*/', '/*mapa-v5*/', '/*mapa-v4*/', '/*mapa-v3*/', '/*mapa-v2*/', '/*mapa-v1*/'):     # versiones anteriores: se reemplazan enteras
+    if '/*mapa-v11*/' not in h:
+        for old in ('/*mapa-v10*/', '/*mapa-v9*/', '/*mapa-v8*/', '/*mapa-v7*/', '/*mapa-v6*/', '/*mapa-v5*/', '/*mapa-v4*/', '/*mapa-v3*/', '/*mapa-v2*/', '/*mapa-v1*/'):     # versiones anteriores: se reemplazan enteras
             if old in h:
                 i = h.index(old)
                 j = h.index('function alertsCard(){', i)
@@ -276,9 +370,15 @@ def aplicar(motor):
                 for c in range(2, 9):
                     ws.cell(r, c).value = None
                 n += 1
-        if n:
+        # 28/11: tipo nuevo «Planta de concreto» en la lista desplegable de la columna B
+        nv = 0
+        for dv in ws.data_validations.dataValidation:
+            if dv.type == 'list' and 'Cantera' in str(dv.formula1) and 'Planta de concreto' not in str(dv.formula1):
+                dv.formula1 = str(dv.formula1).replace('Planta,', 'Planta,Planta de concreto,')
+                nv += 1
+        if n or nv:
             wb.save(pm)
-            msg.append(f'PUNTOS_MAPA.xlsx (-{n} descargas)')
+            msg.append(f'PUNTOS_MAPA.xlsx (-{n} descargas, +{nv} lista)')
     except Exception:
         pass
     return msg
