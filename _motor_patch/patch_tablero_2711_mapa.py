@@ -210,6 +210,23 @@ def aplicar(motor):
     if (aqui / 'PUNTOS_MAPA.xlsx').exists() and not pm.exists():
         shutil.copy(aqui / 'PUNTOS_MAPA.xlsx', pm)
         msg.append(pm.name)
+    # 27/11: Crhistian pidió quitar los dos puntos de descarga que venían precargados (solo esos dos nombres)
+    QUITAR = {'Descarga de cemento · Pte. Vicuñitas', 'Descarga de imprimación'}
+    try:
+        import openpyxl
+        wb = openpyxl.load_workbook(pm)
+        ws = wb.worksheets[0]
+        n = 0
+        for r in range(5, ws.max_row + 1):
+            if str(ws.cell(r, 3).value or '').strip() in QUITAR:
+                for c in range(2, 9):
+                    ws.cell(r, c).value = None
+                n += 1
+        if n:
+            wb.save(pm)
+            msg.append(f'PUNTOS_MAPA.xlsx (-{n} descargas)')
+    except Exception:
+        pass
     return msg
 
 
